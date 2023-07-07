@@ -1,57 +1,65 @@
 const fs = require('fs');
-const csv = require('csv-parser');
 
-// Fonction pour générer une note aléatoire entre min et max
-function generateRandomGrade(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+function updateCSVFileWithRandomScores(filename, minScore, maxScore) {
+  // Lecture du fichier CSV
+  fs.readFile(filename, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Erreur lors de la lecture du fichier :', err);
+      return;
+    }
 
-// Fonction pour traiter le fichier CSV
-function processCSVFile(filePath, minGrade, maxGrade) {
-  const results = [];
-  let sumGrades = 0;
-  let countGrades = 0;
+    // Conversion du contenu CSV en tableau de lignes
+    const lines = data.split('\n');
 
-  fs.createReadStream(filePath)
-    .pipe(csv({ separator: ';' })) // Indique le séparateur du CSV
-    .on('data', (data) => {
-      // Ajouter une note aléatoire à chaque ligne
-      const randomGrade = generateRandomGrade(minGrade, maxGrade);
-      data.Note = randomGrade.toString();
+    // Variables pour calculer la somme des notes et le nombre d'étudiants
+    let sum = 0;
+    let count = 0;
 
-      results.push(data);
+    // Parcours des lignes du CSV
+    for (let i = 1; i < lines.length; i++) {
+      // Extraction des colonnes
+      const columns = lines[i].split(';');
 
-      // Calculer la somme des notes et le nombre de notes
-      sumGrades += randomGrade;
-      countGrades++;
-    })
-    .on('end', () => {
-      // Calculer la moyenne des notes
-      const averageGrade = countGrades > 0 ? (sumGrades / countGrades).toFixed(2) : 0;
+      // Vérification du nombre de colonnes
+      if (columns.length === 5) {
+        // Génération d'une note aléatoire entre minScore et maxScore
+        const randomScore = Math.floor(Math.random() * (maxScore - minScore + 1)) + minScore;
 
-      // Écriture des modifications dans le fichier d'origine
-      const writableStream = fs.createWriteStream(filePath);
+        // Ajout de la note aléatoire dans la colonne "Note"
+        columns[3] = randomScore.toString();
 
-      results.forEach((row) => {
-        const line = `${row.Student_pk};${row.Nom};${row.Prenom};${row.Note};${row.Commentaire || ''}\n`;
-        writableStream.write(line);
-      });
+        // Mise à jour de la ligne dans le tableau de lignes
+        lines[i] = columns.join(';');
 
-      // Ajouter la ligne de moyenne des notes à la fin du fichier
-      const averageLine = `;;;;Moyenne des notes;${averageGrade}\n`;
-      writableStream.write(averageLine);
+        // Ajout de la note à la somme
+        sum += randomScore;
+        count++;
+      }
+    }
 
-      writableStream.end();
-      console.log('Modifications enregistrées avec succès !');
-    })
-    .on('error', (error) => {
-      console.error('Une erreur s\'est produite lors du traitement du fichier CSV :', error);
+    // Calcul de la moyenne des notes
+    const average = count > 0 ? sum / count : 0;
+
+    // Ajout de la ligne de moyenne à la fin du tableau de lignes
+    lines.push(`;Moyenne;;${average};`);
+
+    // Conversion du tableau de lignes en chaîne de caractères CSV
+    const updatedData = lines.join('\n');
+
+    // Écriture des données mises à jour dans le fichier CSV
+    fs.writeFile(filename, updatedData, 'utf8', (err) => {
+      if (err) {
+        console.error('Erreur lors de l\'écriture du fichier :', err);
+        return;
+      }
+      console.log('Le fichier a été mis à jour avec succès.');
     });
+  });
 }
 
-// Exemple d'utilisation
-const filePath = 'students.csv';
-const minGrade = 10;
-const maxGrade = 20;
+// Exemple d'utilisation de la fonction
+const filename = 'students.csv';
+const minScore = 0;
+const maxScore = 20;
 
-processCSVFile(filePath, minGrade, maxGrade);
+updateCSVFileWithRandomScores(filename, minScore, maxScore);
