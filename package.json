@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/lnourry75/Rendu-TD5-Louis-Nourry/issues"
   },
-  "homepage": "https://github.com/lnourry75/Rendu-TD5-Louis-Nourry#readme"
+  "homepage": "https://github.com/lnourry75/Rendu-TD5-Louis-Nourry#readme",
+  "devDependencies": {
+    "eslint": "^8.44.0"
+  }
 }
