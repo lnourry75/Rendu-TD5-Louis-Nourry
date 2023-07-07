@@ -1,10 +1,10 @@
 {
   "name": "rendu-td5-louis-nourry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Another beautiful package on dd best-language ever",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lnourry75/Rendu-TD5-Louis-Nourry#readme",
   "devDependencies": {
-    "eslint": "^8.44.0"
+    "eslint": "^8.44.0",
+    "jest": "^29.6.1"
   }
 }
